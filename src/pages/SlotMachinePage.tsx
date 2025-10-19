@@ -2,11 +2,12 @@ import { useEffect, useState } from "react";
 import apiClient from "../api/apiClient";
 import CardFilters from "../components/CardFilters";
 import SlotMachine from "../components/SlotMachine";
+import type { Card } from "../model/Card";
 
 export default function SlotMachinePage() {
-  const [cards, setCards] = useState<any[]>([]);
-  const [filteredCards, setFilteredCards] = useState<any[]>([]);
-  const [selectedCards, setSelectedCards] = useState<any[]>([]); // persistent deck
+  const [cards, setCards] = useState<Card[]>([]);
+  const [filteredCards, setFilteredCards] = useState<Card[]>([]);
+  const [selectedCards, setSelectedCards] = useState<Card[]>([]); // persistent deck
   const [filters, setFilters] = useState({
     rarity: "",
     elixir: "",

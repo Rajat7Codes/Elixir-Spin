@@ -2,8 +2,15 @@ import { useState, useEffect, useRef } from "react";
 import confetti from "canvas-confetti";
 import DeckSection from "./DeckSection";
 import Wheel from "./Wheel";
+import type { Card } from "../model/Card";
 
-export default function SpinWheel({ cards = [], maxSpins = 8 }) {
+interface SpinWheelProps {
+  cards: Card[];
+  maxSpins?: number;
+  onCardSelected: (card: Card) => void;
+}
+
+export default function SpinWheel({ cards = [], maxSpins = 8 } : SpinWheelProps) {
   const [spunCards, setSpunCards] = useState<any[]>([]);
   const [displayedCards, setDisplayedCards] = useState<any[]>(cards);
   const [spinning, setSpinning] = useState(false);

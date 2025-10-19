@@ -1,16 +1,7 @@
 import { useEffect, useState } from "react";
 import apiClient from "../api/apiClient";
 import DeckSection from "../components/DeckSection";
-
-interface Card {
-  id: number;
-  name: string;
-  rarity: string;
-  elixirCost: number;
-  maxEvolutionLevel?: number;
-  iconUrls: { medium: string };
-  type?: string; // e.g. 'Building', 'Troop', 'Spell'
-}
+import type { Card } from "../model/Card";
 
 export default function RandomizerPage() {
   const [filteredCards, setFilteredCards] = useState<Card[]>([]);

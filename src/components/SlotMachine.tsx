@@ -1,14 +1,6 @@
 import { useState } from "react";
 import DeckSection from "./DeckSection";
-
-interface Card {
-  id: number;
-  name: string;
-  rarity: string;
-  elixirCost: number;
-  maxEvolutionLevel?: number;
-  iconUrls: { medium: string };
-}
+import type { Card } from "../model/Card";
 
 interface SlotMachineProps {
   cards: Card[];

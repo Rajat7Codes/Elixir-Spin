@@ -1,7 +1,8 @@
 import React from "react";
+import type { Card } from "../model/Card";
 
 interface WheelProps {
-  displayedCards: any[];
+  displayedCards: Card[];
   selectedCard: any;
   wheelRef: React.RefObject<SVGSVGElement | null>;
   radius: number;
