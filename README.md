@@ -1,73 +1,48 @@
-# React + TypeScript + Vite
+# Elixir-Spin
+Elixir Spin is a React-based mini-game for Clash Royale fans.
+You can filter cards, toggle special categories (like 🧬 Evolutions, 🏰 Buildings, 💣 Big Spells),
+and spin for random decks — just like pulling cards from a magical chest.
 
-This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
+It’s built purely for fun and creativity, helping streamers, casual players, and fans experiment with deck ideas.
 
-Currently, two official plugins are available:
+## ✨ Features
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react) uses [Babel](https://babeljs.io/) (or [oxc](https://oxc.rs) when used in [rolldown-vite](https://vite.dev/guide/rolldown)) for Fast Refresh
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react-swc) uses [SWC](https://swc.rs/) for Fast Refresh
+✅ Spin Wheel Deck Randomizer, Slot machine, Random deck generator in one go...
 
-## React Compiler
+✅ Category Toggles
+Enable or disable card types such as:
+🧬 Evolution, 🏰 Building, 🏆 Champion, ✨ Small Spell, 💣 Big Spell, 🏹 Air Counter, 🌀 Win Condition, 🃏 Troll Card
 
-The React Compiler is not enabled on this template because of its impact on dev & build performances. To add it, see [this documentation](https://react.dev/learn/react-compiler/installation).
+✅ Card Filters
+Refine by rarity, elixir cost, or name search.
+Includes a modern, Clash-themed UI with animated toggles and a responsive design.
 
-## Expanding the ESLint configuration
+✅ Streamer Friendly
+Perfect for fun deck challenges or viewer-generated spins.
 
-If you are developing a production application, we recommend updating the configuration to enable type-aware lint rules:
+## 🛠️ Tech Stack
+⚛️ React + TypeScript	Frontend framework
 
-```js
-export default defineConfig([
-  globalIgnores(['dist']),
-  {
-    files: ['**/*.{ts,tsx}'],
-    extends: [
-      // Other configs...
+🎨 TailwindCSS	Styling and responsive UI
 
-      // Remove tseslint.configs.recommended and replace with this
-      tseslint.configs.recommendedTypeChecked,
-      // Alternatively, use this for stricter rules
-      tseslint.configs.strictTypeChecked,
-      // Optionally, add this for stylistic rules
-      tseslint.configs.stylisticTypeChecked,
+🌀 Canvas-Confetti	Fun spin animations
 
-      // Other configs...
-    ],
-    languageOptions: {
-      parserOptions: {
-        project: ['./tsconfig.node.json', './tsconfig.app.json'],
-        tsconfigRootDir: import.meta.dirname,
-      },
-      // other options...
-    },
-  },
-])
+⚙️ Vite	Fast local development
+
+## 🚀 Getting Started
+1️⃣ Clone the repo
+```
+git clone https://github.com/yourusername/elixir-spin.git
+cd elixir-spin
+```
+2️⃣ Install dependencies
+```
+npm install
 ```
 
-You can also install [eslint-plugin-react-x](https://github.com/Rel1cx/eslint-react/tree/main/packages/plugins/eslint-plugin-react-x) and [eslint-plugin-react-dom](https://github.com/Rel1cx/eslint-react/tree/main/packages/plugins/eslint-plugin-react-dom) for React-specific lint rules:
-
-```js
-// eslint.config.js
-import reactX from 'eslint-plugin-react-x'
-import reactDom from 'eslint-plugin-react-dom'
-
-export default defineConfig([
-  globalIgnores(['dist']),
-  {
-    files: ['**/*.{ts,tsx}'],
-    extends: [
-      // Other configs...
-      // Enable lint rules for React
-      reactX.configs['recommended-typescript'],
-      // Enable lint rules for React DOM
-      reactDom.configs.recommended,
-    ],
-    languageOptions: {
-      parserOptions: {
-        project: ['./tsconfig.node.json', './tsconfig.app.json'],
-        tsconfigRootDir: import.meta.dirname,
-      },
-      // other options...
-    },
-  },
-])
+3️⃣ Run the dev server
 ```
+npm run dev
+```
+
+Your app will be live at http://localhost:5173
