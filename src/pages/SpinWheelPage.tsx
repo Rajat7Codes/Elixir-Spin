@@ -50,7 +50,7 @@ export default function SpinWheelPage() {
   }, [filters, cards]);
 
   return (
-    <div className="flex flex-col items-center gap-8 mx-auto">
+    <div className="flex flex-col items-center gap-8 mx-auto py-10">
       {/* 🎡 Spin Wheel (Middle) */}
       <div className="flex justify-center">
         <SpinWheel

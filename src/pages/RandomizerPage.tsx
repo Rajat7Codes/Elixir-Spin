@@ -139,7 +139,7 @@ export default function RandomizerPage() {
   };
 
   return (
-    <div className="flex flex-col gap-8 items-center w-full p-5 mx-auto">
+    <div className="flex flex-col gap-8 items-center w-full px-5 py-10 mx-auto">
 
       {/* 🧩 Deck */}
       <DeckSection deck={deck} onRemove={handleRemove} maxSlots={8} />

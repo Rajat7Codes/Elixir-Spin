@@ -56,7 +56,7 @@ export default function DeckSection({ deck, onRemove, maxSlots = 8 }: DeckSectio
         {deck.map((card) => (
           <div
             key={card.id}
-            className="min-h-[100px] min-w-[75px] max-h-[180px] max-w-[140px] relative rounded-lg flex flex-col items-center justify-center text-sm font-mediu overflow-hidden"
+            className="min-h-[90px] min-w-[60px] max-h-[180px] max-w-[140px] relative rounded-lg flex flex-col items-center justify-center overflow-hidden"
           >
             {/* Remove Button */}
             <button
@@ -80,7 +80,7 @@ export default function DeckSection({ deck, onRemove, maxSlots = 8 }: DeckSectio
         {[...Array(emptySlots)].map((_, i) => (
           <div
             key={`empty-${i}`}
-            className="min-h-[100px] min-w-[75px] max-h-[180px] max-w-[140px]  relative rounded-lg flex flex-col items-center justify-center text-sm font-medium
+            className="min-h-[90px] min-w-[60px] max-h-[180px] max-w-[140px]  relative rounded-lg flex flex-col items-center justify-center text-sm font-medium
             bg-primary border-2 border-accentsecondary text-gray-400"
           >
             Empty

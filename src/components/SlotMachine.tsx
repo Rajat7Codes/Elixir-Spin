@@ -84,7 +84,7 @@ export default function SlotMachine({ cards, maxSpins = 8, onCardSelected }: Slo
       <DeckSection deck={deck} onRemove={handleRemove} maxSlots={maxSpins} />
 
       {/* Middle - Slot Machine */}
-      <div className="flex gap-4 justify-center items-center h-44 md:h-52 px-4 py-2 bg-gradient-to-t from-blue-900 via-indigo-800 to-purple-700 rounded-2xl shadow-inner border border-indigo-500 relative overflow-hidden">
+      <div className="flex gap-4 justify-center items-center h-44 md:h-52 px-2 bg-gradient-to-t from-blue-900 via-indigo-800 to-purple-700 rounded-2xl shadow-inner border border-indigo-500 relative overflow-hidden">
 
         {/* Subtle animated background shimmer */}
         <div className="absolute inset-0 bg-[radial-gradient(circle_at_center,_rgba(255,255,255,0.08)_0%,_transparent_70%)] animate-pulse" />
