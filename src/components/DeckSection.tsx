@@ -14,12 +14,36 @@ export default function DeckSection({ deck, onRemove, maxSlots = 8 }: DeckSectio
     if (deck.length < maxSlots) return;
 
     const ids = deck.map((c) => c.id).join(";");
-    const link = `https://link.clashroyale.com/en?clashroyale://copyDeck?deck=${ids}&slots=0;0;0;0;0;0;0;0`;
+    // Correct universal link
+    const deckLink = `https://link.clashroyale.com/?clashroyale://copyDeck?deck=${ids}`;
 
     try {
-      await navigator.clipboard.writeText(link);
+      // Copy to clipboard
+      // await navigator.clipboard.writeText(deckLink);
       setCopied(true);
       setTimeout(() => setCopied(false), 2000);
+
+      // 🔹 Try opening the Clash Royale app via deep link
+      const clashRoyaleURL = `clashroyale://copyDeck?deck=${ids}&l=Royals&tt=159000000`;
+      const isIOS = /iPhone|iPad|iPod/i.test(navigator.userAgent);
+      const isAndroid = /Android/i.test(navigator.userAgent);
+
+      if (isIOS || isAndroid) {
+        // Open app in new tab (browser will redirect to app if installed)
+        const newWindow = window.open(clashRoyaleURL, "_blank");
+
+        // Fallback to official link after short delay if app not installed
+        setTimeout(() => {
+          if (newWindow && !newWindow.closed) {
+            newWindow.location.href = deckLink;
+          } else {
+            window.open(deckLink, "_blank");
+          }
+        }, 1500);
+      } else {
+        // Fallback for desktop browsers
+        window.open(deckLink, "_blank");
+      }
     } catch (err) {
       console.error("Failed to copy deck:", err);
     }
@@ -38,7 +62,10 @@ export default function DeckSection({ deck, onRemove, maxSlots = 8 }: DeckSectio
             <button
               onClick={() => onRemove(card)}
               className="h-full w-full absolute top-1 right-1"
-              title="Remove card" > <div></div> </button>
+              title="Remove card"
+            >
+              <div></div>
+            </button>
 
             {/* Card Image */}
             <img
@@ -67,7 +94,11 @@ export default function DeckSection({ deck, onRemove, maxSlots = 8 }: DeckSectio
           onClick={handleCopyDeck}
           disabled={deck.length < maxSlots}
           className={`px-4 py-1 rounded-lg text-sm font-semibold transition
-            ${deck.length === maxSlots ? "bg-green-600 hover:bg-green-600 text-gray-200" : "bg-gray-500 text-gray-700 cursor-not-allowed"}`}
+            ${
+              deck.length === maxSlots
+                ? "bg-green-600 hover:bg-green-600 text-gray-200"
+                : "bg-gray-500 text-gray-700 cursor-not-allowed"
+            }`}
         >
           {copied ? "Copied! ✅" : "Copy Deck"}
         </button>
