@@ -3,7 +3,7 @@ import type { Card } from "../model/Card";
 
 interface WheelProps {
   displayedCards: Card[];
-  selectedCard: any;
+  selectedCard: Card | null;
   wheelRef: React.RefObject<SVGSVGElement | null>;
   radius: number;
 }

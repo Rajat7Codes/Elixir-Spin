@@ -26,7 +26,7 @@ export default function SlotMachinePage() {
       .catch(console.error);
   }, []);
 
-  // ✅ Only re-filter — don’t reset selected cards
+  // Only re-filter — don’t reset selected cards
   useEffect(() => {
     let result = [...cards];
 
@@ -52,7 +52,7 @@ export default function SlotMachinePage() {
 
   return (
     <div className="flex flex-col items-center gap-8 max-w-5xl mx-auto py-10">
-      {/* 🎡 Spin Wheel (Middle) */}
+      {/* Spin Wheel (Middle) */}
       <div className="w-full flex justify-center">
         <SlotMachine
           cards={filteredCards}
@@ -63,7 +63,7 @@ export default function SlotMachinePage() {
         />
       </div>
 
-      {/* 🔎 Filters + Spin Button (Bottom) */}
+      {/* Filters + Spin Button (Bottom) */}
       <div className="w-full px-3">
         <CardFilters filters={filters} setFilters={setFilters} />
       </div>

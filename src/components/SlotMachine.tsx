@@ -1,6 +1,7 @@
 import { useState } from "react";
 import DeckSection from "./DeckSection";
 import type { Card } from "../model/Card";
+import { useSlotRoll } from "../hooks/useSlotRoll";
 
 interface SlotMachineProps {
   cards: Card[];
@@ -10,19 +11,14 @@ interface SlotMachineProps {
 
 export default function SlotMachine({ cards, maxSpins = 8, onCardSelected }: SlotMachineProps) {
   const [deck, setDeck] = useState<Card[]>([]);
-  const [slotOptions, setSlotOptions] = useState<Card[]>([]);
-  const [rolling, setRolling] = useState(false);
-  const [blindMode, setBlindMode] = useState(false); // 🔹 BLIND mode
-        console.log(cards);
+  const { rolling, slotOptions, roll, clearSlots } = useSlotRoll();
+  const [blindMode, setBlindMode] = useState(false); // BLIND mode
 
   const handleRoll = () => {
     if (rolling || cards.length === 0 || deck.length >= maxSpins) return;
 
-    setRolling(true);
-
     const hasChampion = deck.some((c) => c.rarity === "champion");
 
-    // Filter out cards already picked + ensure Champion doesn’t repeat
     const availableCards = cards.filter((c) => {
       if (deck.some((d) => d.id === c.id)) return false;
       if (hasChampion && c.rarity === "champion") return false;
@@ -30,39 +26,20 @@ export default function SlotMachine({ cards, maxSpins = 8, onCardSelected }: Slo
     });
 
     if (availableCards.length === 0) {
-      setSlotOptions([]);
-      setRolling(false);
+      clearSlots();
       return;
     }
 
     const options: Card[] = [];
     const copy = [...availableCards];
+
     for (let i = 0; i < 3 && copy.length > 0; i++) {
       const idx = Math.floor(Math.random() * copy.length);
       options.push(copy[idx]);
       copy.splice(idx, 1);
     }
 
-    setSlotOptions([]);
-
-    const interval = 100;
-    let frames = 8;
-    const rollInterval = setInterval(() => {
-      if (frames <= 0) {
-        clearInterval(rollInterval);
-        setSlotOptions(options);
-        setRolling(false);
-        return;
-      }
-
-      const rollingCards = options.map(() => {
-        const idx = Math.floor(Math.random() * availableCards.length);
-        return availableCards[idx];
-      });
-
-      setSlotOptions(rollingCards);
-      frames--;
-    }, interval);
+    roll(availableCards, options);
   };
 
   const handlePick = (card: Card) => {
@@ -70,7 +47,7 @@ export default function SlotMachine({ cards, maxSpins = 8, onCardSelected }: Slo
 
     setDeck((prev) => [...prev, card]);
     onCardSelected(card);
-    setSlotOptions([]);
+    clearSlots()
     if (deck.length + 1 < maxSpins) setTimeout(handleRoll, 200);
   };
 

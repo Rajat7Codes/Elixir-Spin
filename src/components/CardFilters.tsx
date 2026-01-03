@@ -1,19 +1,16 @@
 import React from "react";
 
+export interface CardFilterState {
+  rarity: string;
+  elixir: string;
+  name: string;
+  hasEvolution: boolean;
+}
+
 interface CardFiltersProps {
-  filters: {
-    rarity: string;
-    elixir: string;
-    name: string;
-    hasEvolution: boolean;
-  };
+  filters: CardFilterState;
   setFilters: React.Dispatch<
-    React.SetStateAction<{
-      rarity: string;
-      elixir: string;
-      name: string;
-      hasEvolution: boolean;
-    }>
+    React.SetStateAction<CardFilterState>
   >;
 }
 

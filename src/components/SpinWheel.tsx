@@ -7,14 +7,13 @@ import type { Card } from "../model/Card";
 interface SpinWheelProps {
   cards: Card[];
   maxSpins?: number;
-  onCardSelected: (card: Card) => void;
 }
 
-export default function SpinWheel({ cards = [], maxSpins = 8 } : SpinWheelProps) {
-  const [spunCards, setSpunCards] = useState<any[]>([]);
-  const [displayedCards, setDisplayedCards] = useState<any[]>(cards);
+export default function SpinWheel({ cards = [], maxSpins = 8 }: SpinWheelProps) {
+  const [spunCards, setSpunCards] = useState<Card[]>([]);
+  const [displayedCards, setDisplayedCards] = useState<Card[]>(cards);
+  const [selectedCard, setSelectedCard] = useState<Card | null>(null);
   const [spinning, setSpinning] = useState(false);
-  const [selectedCard, setSelectedCard] = useState<any>(null);
   const [currentRotation, setCurrentRotation] = useState(0);
   const wheelRef = useRef<SVGSVGElement | null>(null);
 

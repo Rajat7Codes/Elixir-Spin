@@ -5,7 +5,10 @@ interface ChallengeCardProps {
   description: string;
 }
 
-export default function ChallengeCard({name, description }: ChallengeCardProps) {
+export default function ChallengeCard({
+  name, 
+  description 
+}: ChallengeCardProps) {
   return (
     <div className="bg-gradient-to-br from-blue-900 via-indigo-900 to-purple-800 p-6 border border-gray-200 rounded-xl shadow-sm hover:shadow-md hover:-translate-y-1 transition-all">
       <h2 className="text-2xl font-semibold text-textprimary">{name}</h2>

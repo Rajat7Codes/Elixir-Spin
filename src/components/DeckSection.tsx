@@ -1,8 +1,10 @@
 import { useState } from "react";
+import type { Card } from "../model/Card";
+import { shareDeck } from "../utils/copyDeckUtil";
 
 interface DeckSectionProps {
-  deck: any[];
-  onRemove: (card: any) => void;
+  deck: Card[];
+  onRemove: (card: Card) => void;
   maxSlots?: number;
 }
 
@@ -13,39 +15,13 @@ export default function DeckSection({ deck, onRemove, maxSlots = 8 }: DeckSectio
   const handleCopyDeck = async () => {
     if (deck.length < maxSlots) return;
 
-    const ids = deck.map((c) => c.id).join(";");
-    // Correct universal link
-    const deckLink = `https://link.clashroyale.com/?clashroyale://copyDeck?deck=${ids}`;
-
+    setCopied(true);
+    setTimeout(() => setCopied(false), 2000);
+    
     try {
-      // Copy to clipboard
-      // await navigator.clipboard.writeText(deckLink);
-      setCopied(true);
-      setTimeout(() => setCopied(false), 2000);
-
-      // 🔹 Try opening the Clash Royale app via deep link
-      const clashRoyaleURL = `clashroyale://copyDeck?deck=${ids}&l=Royals&tt=159000000`;
-      const isIOS = /iPhone|iPad|iPod/i.test(navigator.userAgent);
-      const isAndroid = /Android/i.test(navigator.userAgent);
-
-      if (isIOS || isAndroid) {
-        // Open app in new tab (browser will redirect to app if installed)
-        const newWindow = window.open(clashRoyaleURL, "_blank");
-
-        // Fallback to official link after short delay if app not installed
-        setTimeout(() => {
-          if (newWindow && !newWindow.closed) {
-            newWindow.location.href = deckLink;
-          } else {
-            window.open(deckLink, "_blank");
-          }
-        }, 1500);
-      } else {
-        // Fallback for desktop browsers
-        window.open(deckLink, "_blank");
-      }
+      await shareDeck(deck);
     } catch (err) {
-      console.error("Failed to copy deck:", err);
+      console.error("Failed to copy deck", err);
     }
   };
 

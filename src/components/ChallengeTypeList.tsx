@@ -11,16 +11,43 @@ interface ChallengeType {
 export default function ChallengeTypeList() {
   const [types, setTypes] = useState<ChallengeType[]>([]);
   const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
-    apiClient.get("/challenge-types").then((res) => {
-      setTypes(res.data);
-      setLoading(false);
-    });
+    let isMounted = true
+
+    apiClient.get<ChallengeType[]>("/challenge-types")
+      .then((res) => {
+        if (isMounted) setTypes(res.data)
+      })
+      .catch(() => {
+        if (isMounted) setError("Failed to load challenges")
+      })
+      .finally(() => {
+        setLoading(false)
+      })
+
+    return () => {
+      isMounted = false;
+    };
   }, []);
 
-  if (loading)
-    return <div className="text-center text-gray-500 py-10">Loading challenges...</div>;
+  if (loading) {
+    return (
+      <div className="text-center text-gray-500 py-10">
+        Loading challenges...
+      </div>
+    );
+  }
+
+  
+  if (error) {
+    return (
+      <div className="text-center text-red-500 py-10">
+        Error occurent please mail patilrajat805@gmail.com if it still persists...
+      </div>
+    );
+  }
 
   return (
     <section className="max-w-6xl mx-auto px-4 pb-16">

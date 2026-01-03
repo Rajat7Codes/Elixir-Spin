@@ -25,7 +25,7 @@ export default function SpinWheelPage() {
       .catch(console.error);
   }, []);
 
-  // ✅ Only re-filter — don’t reset selected cards
+  // Only re-filter — don’t reset selected cards
   useEffect(() => {
     let result = [...cards];
 
@@ -51,7 +51,7 @@ export default function SpinWheelPage() {
 
   return (
     <div className="flex flex-col items-center gap-8 mx-auto py-10">
-      {/* 🎡 Spin Wheel (Middle) */}
+      {/* Spin Wheel (Middle) */}
       <div className="flex justify-center">
         <SpinWheel
           cards={filteredCards}
@@ -62,7 +62,7 @@ export default function SpinWheelPage() {
         />
       </div>
 
-      {/* 🔎 Filters + Spin Button (Bottom) */}
+      {/* Filters + Spin Button (Bottom) */}
       <div className="w-full px-3">
         <CardFilters filters={filters} setFilters={setFilters} />
       </div>
