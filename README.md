@@ -1,37 +1,65 @@
-# Elixir-Spin
-Elixir Spin is a React-based mini-game for Clash Royale fans.
-You can filter cards, toggle special categories (like 🧬 Evolutions, 🏰 Buildings, 💣 Big Spells),
-and spin for random decks — just like pulling cards from a magical chest.
+# Elixir Spin
 
-It’s built purely for fun and creativity, helping streamers, casual players, and fans experiment with deck ideas.
+**Elixir Spin** is a React-based mini-game and utility tool for **Clash Royale** fans.
+
+It lets you filter cards, toggle special categories (such as 🧬 Evolutions, 🏰 Buildings, and 💣 Big Spells),  
+and generate random decks using **Spin Wheels**, **Slot Machines**, and **Instant Randomizers** —  
+similar to pulling cards from a magical chest.
+
+Built purely for fun and creativity, Elixir Spin helps **streamers, casual players, and fans**
+experiment with deck ideas and create entertaining challenges.
+
+🚀 **Try it here:** https://elixirspin.com
+
+---
 
 ## ✨ Features
 
-✅ Spin Wheel Deck Randomizer, Slot machine, Random deck generator in one go...
+### 🎡 Multiple Randomizers
+- Spin Wheel deck selector  
+- Slot Machine–style card picker  
+- One-click random deck generator  
 
-✅ Category Toggles
-Enable or disable card types such as:
-🧬 Evolution, 🏰 Building, 🏆 Champion, ✨ Small Spell, 💣 Big Spell, 🏹 Air Counter, 🌀 Win Condition, 🃏 Troll Card
+### 🧩 Category Toggles
+Enable or disable specific card categories:
+- 🧬 Evolution  
+- 🏰 Building  
+- 🏆 Champion  
+- ✨ Small Spell  
+- 💣 Big Spell  
+- 🏹 Air Counter  
+- 🌀 Win Condition  
+- 🃏 Troll Card  
 
-✅ Card Filters
-Refine by rarity, elixir cost, or name search.
-Includes a modern, Clash-themed UI with animated toggles and a responsive design.
+### 🔍 Card Filters
+- Filter by rarity
+- Filter by elixir cost
+- Search by card name  
+- Modern Clash-themed UI with animated toggles and responsive design
 
-✅ Streamer Friendly
-Perfect for fun deck challenges or viewer-generated spins.
+### 🎥 Streamer-Friendly
+Perfect for:
+- Fun deck challenges  
+- Viewer-generated spins  
+- Interactive live-stream content  
+
+---
 
 ## 🛠️ Tech Stack
-⚛️ React + TypeScript	Frontend framework
 
-🎨 TailwindCSS	Styling and responsive UI
+| Technology | Purpose |
+|----------|--------|
+| ⚛️ React + TypeScript | Frontend framework |
+| 🎨 Tailwind CSS | Styling & responsive UI |
+| 🌀 Canvas-Confetti | Spin celebration animations |
+| ⚙️ Vite | Fast development & bundling |
 
-🌀 Canvas-Confetti	Fun spin animations
-
-⚙️ Vite	Fast local development
+---
 
 ## 🚀 Getting Started
-1️⃣ Clone the repo
-```
+
+### 1️⃣ Clone the repository
+```bash
 git clone https://github.com/yourusername/elixir-spin.git
 cd elixir-spin
 ```
