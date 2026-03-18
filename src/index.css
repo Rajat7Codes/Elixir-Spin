@@ -8,3 +8,13 @@
   --color-accentprimary: #FF9933; 
   --color-accentsecondary: #211A1D; 
 }
+
+@keyframes slot-spin {
+  0% { transform: translateY(-10px); filter: blur(0); }
+  50% { transform: translateY(10px); filter: blur(4px); }
+  100% { transform: translateY(0); filter: blur(0); }
+}
+
+.animate-slot-spin {
+  animation: slot-spin 0.2s infinite linear;
+}

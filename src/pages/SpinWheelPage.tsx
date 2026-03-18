@@ -1,71 +1,55 @@
-import { useEffect, useState } from "react";
 import apiClient from "../api/apiClient";
 import SpinWheel from "../components/SpinWheel";
 import CardFilters from "../components/CardFilters";
-import type { Card } from "../model/Card";
+import DeckSection from "../components/DeckSection";
+import { useDeckManager } from "../hooks/useDeckManager";
+
+export interface SpinCard {
+  id: number;
+  name: string;
+  imageUrl: string;
+}
 
 export default function SpinWheelPage() {
-  const [cards, setCards] = useState<Card[]>([]);
-  const [filteredCards, setFilteredCards] = useState<Card[]>([]);
-  const [selectedCards, setSelectedCards] = useState<Card[]>([]); // persistent deck
-  const [filters, setFilters] = useState({
-    rarity: "",
-    elixir: "",
-    name: "",
-    hasEvolution: false,
-  });
+  const {
+    deck,
+    setDeck,
+    availableCards,
+    loading,
+    filters,
+    setFilters,
+    currentSlot,
+    removeCard,
+  } = useDeckManager();
 
-  useEffect(() => {
-    apiClient
-      .get("/clash/cards")
-      .then((res) => {
-        setCards(res.data.items);
-        setFilteredCards(res.data.items);
-      })
-      .catch(console.error);
-  }, []);
-
-  // Only re-filter — don’t reset selected cards
-  useEffect(() => {
-    let result = [...cards];
-
-    if (filters.rarity) {
-      result = result.filter((c) => c.rarity.toLowerCase() === filters.rarity);
+  const handleCardSelected = async (selected: { id: number }) => {
+    try {
+      // Get the specific image (Evo/Hero/Normal) based on slot rules
+      const response = await apiClient.get(`/spin/slot/${currentSlot}/card/${selected.id}`);
+      setDeck((prev) => [...prev, response.data]);
+    } catch (error) {
+      console.error("Error fetching final deck card:", error);
     }
-    if (filters.elixir) {
-      result = result.filter(
-        (c) => c.elixirCost === parseInt(filters.elixir, 10)
-      );
-    }
-    if (filters.name) {
-      result = result.filter((c) =>
-        c.name.toLowerCase().includes(filters.name.toLowerCase())
-      );
-    }
-    if (filters.hasEvolution) {
-      result = result.filter((c) => (c.maxEvolutionLevel ?? 0) > 0);
-    }
-
-    setFilteredCards(result);
-  }, [filters, cards]);
+  };
 
   return (
     <div className="flex flex-col items-center gap-8 mx-auto py-10">
-      {/* Spin Wheel (Middle) */}
-      <div className="flex justify-center">
-        <SpinWheel
-          cards={filteredCards}
-          maxSpins={8}
-          onCardSelected={(card) => {
-            if (selectedCards.length < 8) setSelectedCards([...selectedCards, card]);
-          }}
-        />
+      <div className="w-full">
+        <h2 className="text-white text-center mb-4 font-bold">Your Deck ({deck.length}/8)</h2>
+        <DeckSection deck={deck} onRemove={removeCard} />
       </div>
 
-      {/* Filters + Spin Button (Bottom) */}
+      <SpinWheel
+        cards={availableCards as unknown as SpinCard[]}
+        onCardSelected={handleCardSelected}
+        maxSpins={8}
+        currentSlot={currentSlot}
+        isLoading={loading}
+      />
+
       <div className="w-full px-3">
         <CardFilters filters={filters} setFilters={setFilters} />
       </div>
     </div>
   );
-}
+}

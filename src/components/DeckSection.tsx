@@ -1,10 +1,10 @@
 import { useState } from "react";
-import type { Card } from "../model/Card";
-import { shareDeck } from "../utils/copyDeckUtil";
+import { shareDeck } from "../utils/copyDeck";
+import type { DeckCard } from "../types/deck";
 
 interface DeckSectionProps {
-  deck: Card[];
-  onRemove: (card: Card) => void;
+  deck: DeckCard[];
+  onRemove: (id: number) => void;
   maxSlots?: number;
 }
 
@@ -14,10 +14,8 @@ export default function DeckSection({ deck, onRemove, maxSlots = 8 }: DeckSectio
 
   const handleCopyDeck = async () => {
     if (deck.length < maxSlots) return;
-
     setCopied(true);
     setTimeout(() => setCopied(false), 2000);
-    
     try {
       await shareDeck(deck);
     } catch (err) {
@@ -26,55 +24,47 @@ export default function DeckSection({ deck, onRemove, maxSlots = 8 }: DeckSectio
   };
 
   return (
-    <div className="flex flex-col gap-1 p-3">
-      {/* Deck Grid */}
-      <div className="grid grid-cols-4 max-w-[1200px] sm:grid-cols-8 gap-2 bg-[#12153f] p-1 rounded-xl shadow-md border w-full">
+    <div className="flex flex-col gap-2 w-full px-2">
+      <div className="grid grid-cols-4 sm:grid-cols-8 gap-2 bg-[#12153f] p-3 rounded-2xl shadow-xl border border-indigo-500/30 w-full">
         {deck.map((card) => (
           <div
             key={card.id}
-            className="min-h-[90px] min-w-[60px] max-h-[180px] max-w-[140px] relative rounded-lg flex flex-col items-center justify-center overflow-hidden"
+            onClick={() => onRemove(card.id)}
+            className="relative aspect-[2/3] w-full group rounded-lg overflow-hidden border border-white/5 cursor-pointer transition-transform hover:scale-105 bg-[#0a0c29]"
           >
-            {/* Remove Button */}
-            <button
-              onClick={() => onRemove(card)}
-              className="h-full w-full absolute top-1 right-1"
-              title="Remove card"
-            >
-              <div></div>
-            </button>
-
-            {/* Card Image */}
             <img
-              src={card.iconUrls.medium}
+              src={card.imageUrl}
               alt={card.name}
-              className="w-full object-contain rounded-md"
+              className="absolute inset-0 w-full h-full object-cover"
             />
+            <div className="absolute inset-0 bg-red-600/30 opacity-0 group-hover:opacity-100 flex items-center justify-center transition-opacity z-10">
+               <span className="bg-red-600 text-white text-[9px] px-1.5 py-0.5 rounded font-bold">REMOVE</span>
+            </div>
+            <div className="absolute bottom-0 w-full bg-black/60 text-[9px] text-white text-center py-0.5 truncate px-1 z-10">
+              {card.name}
+            </div>
           </div>
         ))}
 
-        {/* Empty Slots */}
         {[...Array(emptySlots)].map((_, i) => (
           <div
             key={`empty-${i}`}
-            className="min-h-[90px] min-w-[60px] max-h-[180px] max-w-[140px]  relative rounded-lg flex flex-col items-center justify-center text-sm font-medium
-            bg-primary border-2 border-accentsecondary text-gray-400"
+            className="relative aspect-[2/3] w-full rounded-lg flex items-center justify-center text-[10px] font-bold uppercase
+            bg-[#0a0c29] border-2 border-dashed border-indigo-900 text-indigo-400 opacity-50 overflow-hidden"
           >
-            Empty
+            Slot {deck.length + i + 1}
           </div>
         ))}
       </div>
 
-      {/* Copy Deck Button */}
-      <div className="flex justify-end mt-2">
+      <div className="flex justify-end pr-1">
         <button
           onClick={handleCopyDeck}
           disabled={deck.length < maxSlots}
-          className={`px-4 py-1 rounded-lg text-sm font-semibold transition
-            ${
-              deck.length === maxSlots
-                ? "bg-green-600 hover:bg-green-600 text-gray-200"
-                : "bg-gray-500 text-gray-700 cursor-not-allowed"
-            }`}
+          className={`px-5 py-1.5 rounded-lg text-xs font-bold uppercase tracking-wider transition-all
+            ${deck.length === maxSlots
+                ? "bg-green-600 hover:bg-green-700 text-white shadow-lg"
+                : "bg-gray-700 text-gray-500 cursor-not-allowed"}`}
         >
           {copied ? "Copied! ✅" : "Copy Deck"}
         </button>

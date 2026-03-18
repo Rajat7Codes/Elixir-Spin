@@ -1,6 +1,6 @@
-import type { Card } from "../model/Card";
+import type { DeckCard } from "../types/deck";
 
-export const shareDeck = async (deck: Card[]) => {
+export const shareDeck = async (deck: DeckCard[]) => {
   if (deck.length < 8) return;
 
   const ids = deck.map((c) => c.id).join(";");

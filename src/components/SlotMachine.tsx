@@ -1,129 +1,138 @@
-import { useState } from "react";
+import { useState, useEffect, useMemo } from "react";
 import DeckSection from "./DeckSection";
-import type { Card } from "../model/Card";
-import { useSlotRoll } from "../hooks/useSlotRoll";
+import apiClient from "../api/apiClient";
+import type { DeckCard } from "../types/deck";
 
 interface SlotMachineProps {
-  cards: Card[];
-  maxSpins?: number;
-  onCardSelected: (card: Card) => void;
+  pool: DeckCard[];
+  deck: DeckCard[];
+  currentSlot: number;
+  onCardAdded: (card: DeckCard) => void;
+  onCardRemoved: (id: number) => void;
+  isLoading: boolean;
 }
 
-export default function SlotMachine({ cards, maxSpins = 8, onCardSelected }: SlotMachineProps) {
-  const [deck, setDeck] = useState<Card[]>([]);
-  const { rolling, slotOptions, roll, clearSlots } = useSlotRoll();
-  const [blindMode, setBlindMode] = useState(false); // BLIND mode
+export default function SlotMachine({ pool, deck, currentSlot, onCardAdded, onCardRemoved, isLoading }: SlotMachineProps) {
+  const [slotOptions, setSlotOptions] = useState<DeckCard[]>([]);
+  const [tempOptions, setTempOptions] = useState<DeckCard[]>([]); 
+  const [rolling, setRolling] = useState(false);
+  const [blindMode, setBlindMode] = useState(false);
+  const maxSlots = 8;
+
+  // 1. Available pool for the "fake" shuffle animation
+  const availablePool = useMemo(() => {
+    const deckIds = new Set(deck.map(c => c.id));
+    return pool.filter(card => !deckIds.has(card.id));
+  }, [pool, deck]);
+
+  // 2. Shuffle Effect (Flicker 3 random cards)
+  useEffect(() => {
+    let interval: ReturnType<typeof setInterval>;
+    if (rolling && availablePool.length > 0) {
+      interval = setInterval(() => {
+        const shuffle = [...availablePool].sort(() => 0.5 - Math.random()).slice(0, 3);
+        setTempOptions(shuffle);
+      }, 80);
+    } else {
+      setTempOptions([]);
+    }
+    return () => clearInterval(interval);
+  }, [rolling, availablePool]);
 
   const handleRoll = () => {
-    if (rolling || cards.length === 0 || deck.length >= maxSpins) return;
+    if (rolling || pool.length === 0 || deck.length >= maxSlots) return;
 
-    const hasChampion = deck.some((c) => c.rarity === "champion");
+    setRolling(true);
+    setSlotOptions([]); 
+    
+    setTimeout(() => {
+      /* FIX: Even if the API 'pool' contains 50 cards, 
+         we only take the first 3 to display in the UI slots.
+      */
+      const selection = pool.slice(0, 3); 
+      setSlotOptions(selection); 
+      setRolling(false);
+    }, 1000); 
+  };
 
-    const availableCards = cards.filter((c) => {
-      if (deck.some((d) => d.id === c.id)) return false;
-      if (hasChampion && c.rarity === "champion") return false;
-      return true;
-    });
-
-    if (availableCards.length === 0) {
-      clearSlots();
-      return;
+  const handlePick = async (card: DeckCard) => {
+    if (rolling || deck.length >= maxSlots) return;
+    try {
+      const response = await apiClient.get(`/spin/slot/${currentSlot}/card/${card.id}`);
+      onCardAdded(response.data);
+      setSlotOptions([]); 
+      // Auto-roll for the next card after a short delay to let them see the selection,
+      // provided they haven't reached the max slots
+      if (deck.length + 1 < maxSlots) {
+        setTimeout(() => {
+          handleRoll();
+        }, 500);
+      }
+    } catch (error) {
+      console.error("Error picking card:", error);
     }
-
-    const options: Card[] = [];
-    const copy = [...availableCards];
-
-    for (let i = 0; i < 3 && copy.length > 0; i++) {
-      const idx = Math.floor(Math.random() * copy.length);
-      options.push(copy[idx]);
-      copy.splice(idx, 1);
-    }
-
-    roll(availableCards, options);
   };
 
-  const handlePick = (card: Card) => {
-    if (deck.length >= maxSpins || deck.find((c) => c.id === card.id)) return;
-
-    setDeck((prev) => [...prev, card]);
-    onCardSelected(card);
-    clearSlots()
-    if (deck.length + 1 < maxSpins) setTimeout(handleRoll, 200);
-  };
-
-  const handleRemove = (card: Card) => {
-    setDeck((prev) => prev.filter((c) => c.id !== card.id));
-  };
+  // Ensure we NEVER show more than 3 cards, even if state updates oddly
+  const displayCards = rolling ? tempOptions.slice(0, 3) : slotOptions.slice(0, 3);
 
   return (
     <div className="flex flex-col gap-6 items-center w-full">
-      {/* Top - Deck */}
-      <DeckSection deck={deck} onRemove={handleRemove} maxSlots={maxSpins} />
+      <DeckSection deck={deck} onRemove={onCardRemoved} maxSlots={maxSlots} />
 
-      {/* Middle - Slot Machine */}
-      <div className="flex gap-4 justify-center items-center h-44 md:h-52 px-2 bg-gradient-to-t from-blue-900 via-indigo-800 to-purple-700 rounded-2xl shadow-inner border border-indigo-500 relative overflow-hidden">
-
-        {/* Subtle animated background shimmer */}
-        <div className="absolute inset-0 bg-[radial-gradient(circle_at_center,_rgba(255,255,255,0.08)_0%,_transparent_70%)] animate-pulse" />
-
-        {slotOptions.length === 0 ? (
-          <div className="text-gray-200 text-center w-full text-sm md:text-base font-medium italic drop-shadow">
-            🎰 Click <span className="text-yellow-300 font-semibold">Roll</span> to generate options
+      {/* Middle - Slot Machine Container */}
+      <div className="flex gap-4 justify-center items-center h-44 md:h-52 px-4 bg-gradient-to-t from-blue-900 via-indigo-900 to-purple-800 rounded-3xl shadow-[inset_0_0_20px_rgba(0,0,0,0.5)] border-2 border-indigo-400/30 relative w-full max-w-2xl overflow-hidden">
+        
+        {displayCards.length === 0 && !rolling ? (
+          <div className="text-yellow-300 font-bold uppercase tracking-widest animate-pulse drop-shadow-md">
+             🎰 Click Roll to Spin
           </div>
         ) : (
-          slotOptions.map((card, index) => (
+          displayCards.map((card, index) => (
             <div
               key={`${card.id}-${index}`}
-              className="relative w-24 h-32 md:w-28 md:h-36 bg-white/10 backdrop-blur-md border-2 border-yellow-400/60 rounded-xl flex flex-col items-center justify-center cursor-pointer 
-                        transform hover:scale-110 hover:-translate-y-1 transition-all duration-300 shadow-lg hover:shadow-yellow-400/40"
-              onClick={() => handlePick(card)}
+              className={`relative w-24 h-32 md:w-28 md:h-36 bg-[#1a1c3d] border-2 rounded-xl flex flex-col items-center justify-center transition-all duration-100
+                ${rolling 
+                  ? "border-indigo-500/50 scale-95 blur-[1px] opacity-70" 
+                  : "border-yellow-400 cursor-pointer hover:scale-110 active:scale-95 shadow-[0_0_15px_rgba(250,204,21,0.3)] animate-in zoom-in-90"
+                }`}
+              onClick={() => !rolling && handlePick(card)}
             >
-              {/* Inner glow effect */}
-              <div className="absolute inset-0 rounded-xl bg-gradient-to-br from-white/10 to-transparent pointer-events-none" />
-
-              {blindMode ? (
-                <div className="w-full h-full flex items-center justify-center text-4xl font-extrabold text-yellow-300 select-none animate-pulse">
-                  ?
-                </div>
+              {blindMode && !rolling ? (
+                <div className="text-4xl font-extrabold text-yellow-300 animate-pulse">?</div>
               ) : (
                 <img
-                  src={card.iconUrls.medium}
+                  src={card.imageUrl}
                   alt={card.name}
                   className="w-full h-full object-cover rounded-lg"
                 />
               )}
 
-              {/* Card name bar */}
-              <div className="absolute bottom-1.5 left-1/2 -translate-x-1/2 text-[11px] md:text-xs font-bold 
-                              text-gray-900 bg-yellow-300/80 rounded-md px-2 py-[2px] shadow-sm tracking-tight w-[85%] text-center truncate">
-                {blindMode ? "???" : card.name}
-              </div>
-
-              {/* Decorative top glow */}
-              <div className="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-yellow-400 via-white to-yellow-400 rounded-t-xl opacity-70" />
+              {!rolling && (
+                <div className="absolute bottom-1.5 left-1/2 -translate-x-1/2 text-[10px] font-black text-gray-900 bg-yellow-400 rounded-md px-2 py-0.5 w-[85%] text-center truncate uppercase">
+                  {blindMode ? "???" : card.name}
+                </div>
+              )}
             </div>
           ))
         )}
       </div>
 
-
-      {/* Bottom - Roll + Blind Button */}
       <div className="flex gap-4">
         <button
           onClick={handleRoll}
-          disabled={rolling || cards.length === 0 || deck.length >= maxSpins}
-          className={`px-6 py-2 rounded-lg font-semibold transition
-            ${rolling ? "bg-gray-300 text-gray-700 cursor-not-allowed" : "bg-yellow-400 hover:bg-yellow-500 text-gray-900"}`}
+          disabled={rolling || isLoading || deck.length >= maxSlots}
+          className={`px-10 py-2.5 rounded-full font-black uppercase transition-all
+            ${rolling ? "bg-gray-600 text-gray-400 cursor-not-allowed" : "bg-yellow-400 hover:bg-yellow-500 text-gray-900 shadow-[0_4px_0_rgb(180,140,0)] active:translate-y-1 active:shadow-none"}`}
         >
-          {rolling ? "Rolling..." : "Roll"}
+          {rolling ? "Spinning..." : "Roll"}
         </button>
 
         <button
-          onClick={() => setBlindMode((prev) => !prev)}
-          className={`px-6 py-2 rounded-lg font-semibold transition
-            ${blindMode ? "bg-red-400 hover:bg-red-500 text-white" : "bg-gray-200 hover:bg-gray-300 text-gray-800"}`}
+          onClick={() => setBlindMode(!blindMode)}
+          className={`px-6 py-2 rounded-full font-bold text-xs transition-all uppercase border-2 ${blindMode ? "bg-red-500 border-red-400 text-white shadow-lg" : "bg-white/5 border-white/20 text-white/70 hover:bg-white/10"}`}
         >
-          {blindMode ? "BLIND ON" : "BLIND OFF"}
+          {blindMode ? "Blind: ON" : "Blind: OFF"}
         </button>
       </div>
     </div>

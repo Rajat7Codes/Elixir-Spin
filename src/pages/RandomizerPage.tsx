@@ -1,90 +1,98 @@
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import apiClient from "../api/apiClient";
 import DeckSection from "../components/DeckSection";
-import type { Card } from "../model/Card";
-import { generateDeck } from "../utils/randomizeDeck";
+import type { DeckCard } from "../types/deck";
+
+type CategoryKey = 
+  | "evolution" 
+  | "building" 
+  | "champion" 
+  | "smallSpell" 
+  | "winCondition" 
+  | "bigSpell" 
+  | "airCounter" 
+  | "trollCard";
+
+const INITIAL_CATEGORIES: Record<CategoryKey, boolean> = {
+  evolution: false,
+  building: false,
+  champion: false,
+  smallSpell: false,
+  winCondition: false,
+  bigSpell: false,
+  airCounter: false,
+  trollCard: false,
+};
 
 export default function RandomizerPage() {
-  const [filteredCards, setFilteredCards] = useState<Card[]>([]);
-  const [deck, setDeck] = useState<Card[]>([]);
-  
-  // Category selections for streamer
-  const [categories, setCategories] = useState({
-    evolution: false,
-    building: false,
-    champion: false,
-    smallSpell: false,
-    winCondition: false,
-    bigSpell: false,
-    airCounter: false,
-    trollCard: false,
-  });
+  const [deck, setDeck] = useState<DeckCard[]>([]);
+  const [loading, setLoading] = useState(false);
+  const [categories, setCategories] = useState(INITIAL_CATEGORIES);
 
-  // Fetch cards
-  useEffect(() => {
-    apiClient
-      .get("/clash/cards")
-      .then((res) => {
-        setFilteredCards(res.data.items);
-      })
-      .catch(console.error);
-  }, []);
-
-  // Randomizer core logic
-  const handleRandomize = () => {
-    setDeck(generateDeck(filteredCards, categories));
+  const handleRandomize = async () => {
+    setLoading(true);
+    try {
+      const response = await apiClient.post("/spin/randomize", {
+        filters: categories
+      });
+      setDeck(response.data.items);
+    } catch (error) {
+      console.error("Failed to generate deck from backend:", error);
+    } finally {
+      setLoading(false);
+    }
   };
 
-  const handleRemove = (card: Card) => {
-    setDeck((prev) => prev.filter((c) => c.id !== card.id));
+  const handleRemove = (id: number) => {
+    setDeck((prev) => prev.filter((c) => c.id !== id));
   };
 
-  const toggleCategory = (key: keyof typeof categories) => {
+  const toggleCategory = (key: CategoryKey) => {
     setCategories((prev) => ({ ...prev, [key]: !prev[key] }));
   };
 
   return (
-    <div className="flex flex-col gap-8 items-center w-full px-5 py-10 mx-auto">
+    <div className="flex flex-col gap-8 items-center w-full px-5 py-10 mx-auto max-w-6xl">
+      <DeckSection
+        deck={deck}
+        onRemove={handleRemove}
+        maxSlots={8}
+      />
 
-      {/* Deck */}
-      <DeckSection deck={deck} onRemove={handleRemove} maxSlots={8} />
-      
-      {/* Category Toggles */}
-      <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-2 sm:gap-4 bg-gradient-to-br from-blue-500 via-indigo-600 to-purple-600 p-2 rounded-2xl shadow-xl border border-indigo-400 text-white w-full">
-        {Object.entries(categories).map(([key, value]) => (
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-1 bg-[#12153f]/80 p-2 rounded-3xl shadow-2xl border border-indigo-500/30 w-full">
+        {(Object.entries(categories) as [CategoryKey, boolean][]).map(([key, value]) => (
           <div
             key={key}
-            className="flex items-center justify-between gap-2 bg-primary hover:bg-white/20 transition-all rounded-xl p-2 cursor-pointer shadow-md"
-            onClick={() => toggleCategory(key as keyof typeof categories)}
+            className="flex items-center justify-between bg-indigo-900/40 hover:bg-indigo-800/60 transition-all rounded-2xl px-4 py-2 cursor-pointer border border-white/5 shadow-inner"
+            onClick={() => toggleCategory(key)}
           >
-            {/* Label */}
-            <span className="text-xs sm:text-sm font-semibold text-center capitalize tracking-wide">
+            <span className="text-sm font-bold text-white capitalize tracking-tight">
               {key.replace(/([A-Z])/g, " $1")}
             </span>
-            
-            {/* Switch */}
-            <div className="relative inline-flex items-center cursor-pointer">
-              <input
-                type="checkbox"
-                checked={value}
-                readOnly
-                className="sr-only peer"
-              />
-              <div className="w-11 h-6 bg-white/30 peer-checked:bg-emerald-600 peer-focus:outline-none rounded-full peer transition-all"></div>
-              <div className="absolute left-1 top-1  bg-white w-4 h-4 rounded-full transition-all peer-checked:translate-x-5 shadow-md "></div>
+
+            <div className={`w-12 h-6 rounded-full transition-all relative ${value ? 'bg-emerald-500 shadow-[0_0_10px_rgba(16,185,129,0.4)]' : 'bg-gray-700'}`}>
+              <div className={`absolute top-1 w-4 h-4 bg-white rounded-full transition-all ${value ? 'left-7' : 'left-1'}`} />
             </div>
           </div>
         ))}
       </div>
 
-
-      {/* Randomize Button */}
       <button
         onClick={handleRandomize}
-        className="bg-gradient-to-br from-blue-500 via-indigo-600 to-purple-600 hover:bg-purple-600 text-white font-semibold px-8 py-3 rounded-lg shadow-md transition"
+        disabled={loading}
+        className={`relative group overflow-hidden px-12 py-4 rounded-2xl font-black text-white uppercase tracking-tighter transition-all shadow-xl
+          ${loading
+            ? "bg-gray-600 cursor-not-allowed"
+            : "bg-gradient-to-r from-blue-600 via-indigo-600 to-purple-700 hover:scale-105 active:scale-95 shadow-indigo-500/20"
+          }`}
       >
-        🎲 Randomize Deck
+        <div className="flex items-center gap-2">
+          <span className={loading ? "animate-spin" : "group-hover:rotate-12 transition-transform"}>
+            {loading ? "⌛" : "🎲"}
+          </span>
+          {loading ? "Building Deck..." : "Randomize Deck"}
+        </div>
       </button>
     </div>
   );
-}
+}
