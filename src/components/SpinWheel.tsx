@@ -1,4 +1,5 @@
-import { useState, useEffect, useRef } from "react";
+import { useEffect, useState, useRef } from "react";
+import apiClient from "../api/apiClient";
 import confetti from "canvas-confetti";
 import Wheel from "./Wheel";
 import type { SpinCard } from "../pages/SpinWheelPage";
@@ -32,6 +33,9 @@ export default function SpinWheel({ cards = [], onCardSelected, maxSpins = 8, cu
 
   const handleSpin = () => {
     if (cards.length === 0 || currentSlot > maxSpins || spinning || isLoading) return;
+
+    // Record the spin metric
+    apiClient.post("/metrics/spin").catch(() => { });
 
     const total = cards.length;
     const randomIndex = Math.floor(Math.random() * total);

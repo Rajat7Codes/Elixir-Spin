@@ -12,7 +12,7 @@ export default function SlotMachinePage() {
     filters,
     setFilters,
     currentSlot,
-  } = useDeckManager();
+  } = useDeckManager('slot_machine');
 
   return (
     <div className="flex flex-col items-center gap-8 max-w-5xl mx-auto py-10">

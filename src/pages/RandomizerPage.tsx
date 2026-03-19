@@ -3,14 +3,14 @@ import apiClient from "../api/apiClient";
 import DeckSection from "../components/DeckSection";
 import type { DeckCard } from "../types/deck";
 
-type CategoryKey = 
-  | "evolution" 
-  | "building" 
-  | "champion" 
-  | "smallSpell" 
-  | "winCondition" 
-  | "bigSpell" 
-  | "airCounter" 
+type CategoryKey =
+  | "evolution"
+  | "building"
+  | "champion"
+  | "smallSpell"
+  | "winCondition"
+  | "bigSpell"
+  | "airCounter"
   | "trollCard";
 
 const INITIAL_CATEGORIES: Record<CategoryKey, boolean> = {
@@ -32,8 +32,9 @@ export default function RandomizerPage() {
   const handleRandomize = async () => {
     setLoading(true);
     try {
-      const response = await apiClient.post("/spin/randomize", {
-        filters: categories
+      const response = await apiClient.post("/randomize", {
+        filters: categories,
+        source: 'randomizer'
       });
       setDeck(response.data.items);
     } catch (error) {
@@ -66,8 +67,8 @@ export default function RandomizerPage() {
             className="flex items-center justify-between bg-indigo-900/40 hover:bg-indigo-800/60 transition-all rounded-2xl px-4 py-2 cursor-pointer border border-white/5 shadow-inner"
             onClick={() => toggleCategory(key)}
           >
-            <span className="text-sm font-bold text-white capitalize tracking-tight">
-              {key.replace(/([A-Z])/g, " $1")}
+            <span className="text-sm font-bold text-white tracking-tight">
+              {key === "evolution" ? "S1: Evolution" : key === "champion" ? "S2: Hero/Champ" : key.replace(/([A-Z])/g, " $1")}
             </span>
 
             <div className={`w-12 h-6 rounded-full transition-all relative ${value ? 'bg-emerald-500 shadow-[0_0_10px_rgba(16,185,129,0.4)]' : 'bg-gray-700'}`}>
@@ -95,4 +96,4 @@ export default function RandomizerPage() {
       </button>
     </div>
   );
-}
+}

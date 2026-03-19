@@ -20,12 +20,12 @@ export default function SpinWheelPage() {
     setFilters,
     currentSlot,
     removeCard,
-  } = useDeckManager();
+  } = useDeckManager('spin_wheel');
 
   const handleCardSelected = async (selected: { id: number }) => {
     try {
       // Get the specific image (Evo/Hero/Normal) based on slot rules
-      const response = await apiClient.get(`/spin/slot/${currentSlot}/card/${selected.id}`);
+      const response = await apiClient.get(`/slot/${currentSlot}/card/${selected.id}?source=spin_wheel`);
       setDeck((prev) => [...prev, response.data]);
     } catch (error) {
       console.error("Error fetching final deck card:", error);
@@ -52,4 +52,4 @@ export default function SpinWheelPage() {
       </div>
     </div>
   );
-}
+}

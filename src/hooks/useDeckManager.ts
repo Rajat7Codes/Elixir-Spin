@@ -18,7 +18,7 @@ export const INITIAL_FILTERS: FilterState = {
   isHero: false,
 };
 
-export function useDeckManager() {
+export function useDeckManager(source?: string) {
   const [deck, setDeck] = useState<DeckCard[]>([]);
   const [availableCards, setAvailableCards] = useState<DeckCard[]>([]);
   const [loading, setLoading] = useState(false);
@@ -29,26 +29,33 @@ export function useDeckManager() {
   const fetchAvailableCards = useCallback(async () => {
     if (currentSlot > 8) return;
     setLoading(true);
+    setAvailableCards([]); // Clear stale cards
     try {
-      const response = await apiClient.post("/spin/load", {
+      const response = await apiClient.post("/load", {
         slotNumber: currentSlot,
         filter: filters,
         deckState: deck,
+        source: source,
       });
-      setAvailableCards(response.data.availableCard);
+      setAvailableCards(response.data.cards);
     } catch (error) {
       console.error("Failed to load cards:", error);
     } finally {
       setLoading(false);
     }
-  }, [currentSlot, filters, deck]);
+  }, [currentSlot, filters, deck, source]);
 
   useEffect(() => {
     fetchAvailableCards();
   }, [fetchAvailableCards]);
 
   const addCard = useCallback((newCard: DeckCard) => {
-    setDeck((prev) => [...prev, newCard]);
+    setDeck((prev) => {
+      if (prev.length >= 8) return prev;
+      // Final guard against duplicates in state
+      if (prev.some(c => c.id === newCard.id)) return prev;
+      return [...prev, newCard];
+    });
   }, []);
 
   const removeCard = useCallback((id: number) => {

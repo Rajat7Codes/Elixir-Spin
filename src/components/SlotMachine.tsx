@@ -21,6 +21,7 @@ export default function SlotMachine({ pool, deck, currentSlot, onCardAdded, onCa
 
   // 1. Available pool for the "fake" shuffle animation
   const availablePool = useMemo(() => {
+    if (!pool || !deck) return [];
     const deckIds = new Set(deck.map(c => c.id));
     return pool.filter(card => !deckIds.has(card.id));
   }, [pool, deck]);
@@ -40,16 +41,18 @@ export default function SlotMachine({ pool, deck, currentSlot, onCardAdded, onCa
   }, [rolling, availablePool]);
 
   const handleRoll = () => {
-    if (rolling || pool.length === 0 || deck.length >= maxSlots) return;
+    if (rolling || !pool || pool.length === 0 || deck.length >= maxSlots) return;
+
+    // Record the roll metric
+    apiClient.post("/metrics/roll").catch(e => console.error("Failed to record roll:", e));
 
     setRolling(true);
     setSlotOptions([]); 
     
     setTimeout(() => {
-      /* FIX: Even if the API 'pool' contains 50 cards, 
-         we only take the first 3 to display in the UI slots.
-      */
-      const selection = pool.slice(0, 3); 
+      // Randomly pick 3 cards from the pool on each roll
+      const shuffled = [...pool].sort(() => Math.random() - 0.5);
+      const selection = shuffled.slice(0, 3);
       setSlotOptions(selection); 
       setRolling(false);
     }, 1000); 
@@ -58,7 +61,7 @@ export default function SlotMachine({ pool, deck, currentSlot, onCardAdded, onCa
   const handlePick = async (card: DeckCard) => {
     if (rolling || deck.length >= maxSlots) return;
     try {
-      const response = await apiClient.get(`/spin/slot/${currentSlot}/card/${card.id}`);
+      const response = await apiClient.get(`/slot/${currentSlot}/card/${card.id}?source=slot_machine`);
       onCardAdded(response.data);
       setSlotOptions([]); 
       // Auto-roll for the next card after a short delay to let them see the selection,

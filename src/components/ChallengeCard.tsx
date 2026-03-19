@@ -4,22 +4,46 @@ interface ChallengeCardProps {
   name: string;
   description: string;
   path: string;
+  icon: string;
+  badge: string;
 }
 
 export default function ChallengeCard({
-  name, 
+  name,
   description,
-  path
+  path,
+  icon,
+  badge,
 }: ChallengeCardProps) {
   return (
-    <div className="bg-gradient-to-br from-blue-900 via-indigo-900 to-purple-800 p-6 border border-gray-200 rounded-xl shadow-sm hover:shadow-md hover:-translate-y-1 transition-all">
-      <h2 className="text-2xl font-semibold text-textprimary">{name}</h2>
-      <p className="text-textprimary mt-2">{description}</p>
+    <div className="group relative bg-secondary/30 border border-secondary/60 hover:border-accentprimary/70 rounded-2xl p-6 flex flex-col gap-4 transition-all duration-300 hover:-translate-y-1 hover:shadow-[0_8px_32px_rgba(255,153,51,0.12)] overflow-hidden">
+      {/* Subtle glow on hover */}
+      <div className="absolute inset-0 bg-gradient-to-br from-accentprimary/0 to-accentprimary/0 group-hover:from-accentprimary/5 group-hover:to-transparent transition-all duration-500 rounded-2xl pointer-events-none" />
+
+      {/* Top row */}
+      <div className="flex items-start justify-between">
+        <span className="text-3xl">{icon}</span>
+        <span className="text-[10px] font-bold uppercase tracking-widest text-accentprimary border border-accentprimary/40 bg-accentprimary/10 px-2.5 py-1 rounded-full">
+          {badge}
+        </span>
+      </div>
+
+      {/* Title + accent line */}
+      <div>
+        <h2 className="text-lg font-bold text-textprimary">{name}</h2>
+        <div className="mt-1.5 h-0.5 w-8 bg-accentprimary rounded-full group-hover:w-16 transition-all duration-300" />
+      </div>
+
+      {/* Description */}
+      <p className="text-textprimary/60 text-sm leading-relaxed flex-1">{description}</p>
+
+      {/* CTA */}
       <Link
         to={path}
-        className="inline-block mt-3 text-textsecondary font-medium hover:underline"
+        className="inline-flex items-center gap-1.5 text-sm font-bold text-accentprimary hover:text-textprimary transition-colors duration-200 group/link mt-1"
       >
-        Play →
+        Play Now
+        <span className="group-hover/link:translate-x-1 transition-transform duration-200">→</span>
       </Link>
     </div>
   );
